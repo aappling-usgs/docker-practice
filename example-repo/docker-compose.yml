@@ -1,0 +1,8 @@
+version: "3"
+services:
+  my-project:
+    image: my-vizzy-env
+    ports:
+      - "8787:8787"
+    volumes:
+      - $(pwd):/home/rstudio/example-repo
