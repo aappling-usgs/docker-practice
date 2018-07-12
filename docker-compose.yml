@@ -1,12 +1,12 @@
 version: "3"
 services:
-  docker-dev:
-    image: my-vizzy-env
+  docker-practice:
+    image: gage-conditions
     build: 
       context: .
       dockerfile: Dockerfile
     ports:
       - "8787:8787"
     volumes:
-      - /D_DRIVE/APAData/Github/Pipeline/docker-practice:/home/rstudio/docker-dev
+      - /D_DRIVE/APAData/Github/Pipeline/docker-practice:/home/rstudio/docker-practice
 
