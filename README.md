@@ -37,7 +37,7 @@ docker push USGS-VIZLAB/my-vizzy-env
 
 To developy your vizzy or analysis in RStudio on the Docker image, first copy example-repo/docker-compose.yml into your project directory, then modify the `volumes` line to map your project directory (`.`) into an aptly named folder within `/home/rstudio/` on the Docker image, e.g., `/home/rstudio/your-project-name`.
 
-win7>In Windows 7, with docker-machine on VirtualBox, volume sharing is tricky. It might work to open Oracle Virtual Box as administrator, add a Shared Folder to the `default` machine, and then restart `docker-machine`. The volume you map with docker-compose.yml will need to be within that shared folder and should use that mapped-drive name in its file path.</win7>.
+win7>In Windows 7, with docker-machine on VirtualBox, volume sharing is tricky. It might work to open Oracle Virtual Box as administrator, add a Shared Folder to the `default` machine, and then restart `docker-machine`. The volume you map with docker-compose.yml will need to be within that shared folder and should use that mapped-drive name in its file path. For example, my mapped drive is `/D_DRIVE` and the path I use in this practice repo is `/D_DRIVE/APAData/Github/Pipeline/docker-practice`.</win7>
 
 ## Working with Docker in your project repository
 
@@ -73,7 +73,7 @@ Strategy: Use packrat with Git LFS to sync a set of tar.gz package bundles in th
 In a fresh R session in this repository:
 ```r
 install.packages('packrat')
-packrat::init()
+packrat::init(options=list(ignored.packages='packrat', ignored.directories=c('example-repo','packrat')))
 ```
 
 Next install a starter set of packages (whatever you already know you need). Use any of the usual installation commands - `install.packages`, `install_github`, `install_version`, etc. Work at the command line rather than creating an R script, because packrat.lock will document everything we need to know about how the packages were installed.
