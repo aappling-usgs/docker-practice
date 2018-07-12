@@ -6,11 +6,13 @@
 # installed the package - this will help anybody in the future who's installing
 # a new version of the library or creating a new docker repo like this one.
 
+library(digest)
+
 # devtools::install_github('richfitz/remake')
 # devtools::install_github('USGS-R/grithub')
 # install.packages('imager') # requires libxt-dev, libx11-dev, libfftw3-dev, libtiff5-dev, and libcairo2-dev
 # devtools::install_github('USGS-VIZLAB/vizlab')
-library(vizlab)
+#library(vizlab)
 
 # library(dataRetrieval)
 # library(dplyr)
