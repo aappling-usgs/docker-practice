@@ -8,15 +8,25 @@ RUN apt-get install -y\
   libtiff5-dev\
   libcairo2-dev
 
-WORKDIR /home/required-packages
-COPY ./packrat/init.R ./packrat/init.R
-COPY ./packrat/packrat.lock ./packrat/packrat.lock
-COPY ./packrat/packrat.opts ./packrat/packrat.opts
-COPY ./packrat/src ./packrat/src
-COPY ./.Rprofile ./.Rprofile
-RUN R -e "0" --args --bootstrap-packrat
+COPY ./packrat/init.R /home/required-packages/packrat/init.R
+COPY ./packrat/packrat.lock /home/required-packages/packrat/packrat.lock
+COPY ./packrat/packrat.opts /home/required-packages/packrat/packrat.opts
+COPY ./packrat/src /home/required-packages/packrat/src
+COPY ./.Rprofile /home/required-packages/.Rprofile
+RUN R --args --bootstrap-packrat -e\
+  "libpath <- .libPaths();\
+  setwd('/home/required-packages');\
+  packrat::restore();\
+  pkdir <- dir('./packrat/lib/x86_64-pc-linux-gnu/', full.names=TRUE);\
+  pkgs <- dir(pkdir);\
+  lapply(pkgs, function(pkg) {\
+    unlink(file.path(libpath, pkg));\
+    file.copy(file.path(pkdir, pkg), libpath, recursive=TRUE, overwrite=TRUE)\
+  });\
+  setwd('/');\
+  unlink('/home/required-packages', recursive=TRUE)"
 
-WORKDIR /
-RUN rm -r /home/required-packages
-RUN mkdir /home/rstudio/docker-dev
-VOLUME /home/rstudio/docker-dev
+RUN mkdir /home/rstudio/docker-practice
+VOLUME /home/rstudio/docker-practice
+RUN mkdir /home/rstudio/gage-conditions
+VOLUME /home/rstudio/gage-conditions
