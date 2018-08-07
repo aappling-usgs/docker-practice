@@ -1,7 +1,7 @@
 version: "3"
 services:
   docker-practice:
-    image: gage-conditions
+    image: aapplingusgs/gage-conditions:0.1.0
     build: 
       context: .
       dockerfile: Dockerfile
@@ -9,4 +9,6 @@ services:
       - "8787:8787"
     volumes:
       - /D_DRIVE/APAData/Github/Pipeline/docker-practice:/home/rstudio/docker-practice
+    environment:
+      - ROOT=TRUE
 

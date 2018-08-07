@@ -8,25 +8,23 @@ RUN apt-get install -y\
   libtiff5-dev\
   libcairo2-dev
 
-COPY ./packrat/init.R /home/required-packages/packrat/init.R
-COPY ./packrat/packrat.lock /home/required-packages/packrat/packrat.lock
-COPY ./packrat/packrat.opts /home/required-packages/packrat/packrat.opts
-COPY ./packrat/src /home/required-packages/packrat/src
-COPY ./.Rprofile /home/required-packages/.Rprofile
-RUN R --args --bootstrap-packrat -e\
-  "libpath <- .libPaths();\
-  setwd('/home/required-packages');\
-  packrat::restore();\
-  pkdir <- dir('./packrat/lib/x86_64-pc-linux-gnu/', full.names=TRUE);\
-  pkgs <- dir(pkdir);\
-  lapply(pkgs, function(pkg) {\
-    unlink(file.path(libpath, pkg));\
-    file.copy(file.path(pkdir, pkg), libpath, recursive=TRUE, overwrite=TRUE)\
-  });\
-  setwd('/');\
-  unlink('/home/required-packages', recursive=TRUE)"
-
+# for use when building the docker image:
+# use packrat and file.copy to add packages to the image
 RUN mkdir /home/rstudio/docker-practice
 VOLUME /home/rstudio/docker-practice
-RUN mkdir /home/rstudio/gage-conditions
-VOLUME /home/rstudio/gage-conditions
+RUN cd "/home/rstudio/docker-practice"
+RUN R --args --bootstrap-packrat -e\
+  "packrat::packrat_mode(on=TRUE);\
+  usrlib <- tail(.libPaths(), 1);\
+  packrat::restore(overwrite.dirty=TRUE, prompt=FALSE);\
+  srclib <- packrat::lib_dir();\
+  pkgs <- dir(srclib, full.names=TRUE);\
+  lapply(pkgs, function(pkg) {\
+    file.copy(pkg, usrlib, recursive=TRUE, overwrite=TRUE);\
+  });\
+  setwd('..');"
+
+# for use when developing the vizzy project: volume mapping
+# allows you to directly edit the project files on your computer
+RUN mkdir /home/rstudio/vizlab-GIF
+VOLUME /home/rstudio/vizlab-GIF

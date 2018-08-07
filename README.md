@@ -8,7 +8,7 @@ win7 {
 
 If you're developing a docker image for a new vizzy or analysis project, copy this repo somewhere new. Repos will differ in which packages are installed in their packrat folder.
 
-Open a bash shell. <win7>In Windows 7, run Docker Quickstart Terminal <em>as administrator.</em></win7>
+Open a bash shell. <win7>In Windows 7, run Docker Quickstart Terminal <em>as administrator, with VPN off.</em></win7>
 
 Navigate to this project directory.
 
@@ -37,7 +37,7 @@ docker push USGS-VIZLAB/my-vizzy-env
 
 To developy your vizzy or analysis in RStudio on the Docker image, first copy example-repo/docker-compose.yml into your project directory, then modify the `volumes` line to map your project directory (`.`) into an aptly named folder within `/home/rstudio/` on the Docker image, e.g., `/home/rstudio/your-project-name`.
 
-win7>In Windows 7, with docker-machine on VirtualBox, volume sharing is tricky. It might work to open Oracle Virtual Box as administrator, add a Shared Folder to the `default` machine, and then restart `docker-machine`. The volume you map with docker-compose.yml will need to be within that shared folder and should use that mapped-drive name in its file path. For example, my mapped drive is `/D_DRIVE` and the path I use in this practice repo is `/D_DRIVE/APAData/Github/Pipeline/docker-practice`.</win7>
+<win7>In Windows 7, with docker-machine on VirtualBox, volume sharing is tricky. It might work to open Oracle Virtual Box as administrator, add a Shared Folder to the `default` machine, and then restart `docker-machine`. The volume you map with docker-compose.yml will need to be within that shared folder and should use that mapped-drive name in its file path. For example, my mapped drive is `/D_DRIVE` and the path I use in this practice repo is `/D_DRIVE/APAData/Github/Pipeline/docker-practice`.</win7>
 
 ## Working with Docker in your project repository
 
@@ -77,6 +77,8 @@ packrat::init(options=list(ignored.packages='packrat', ignored.directories=c('ex
 ```
 
 Next install a starter set of packages (whatever you already know you need). Use any of the usual installation commands - `install.packages`, `install_github`, `install_version`, etc. Work at the command line rather than creating an R script, because packrat.lock will document everything we need to know about how the packages were installed.
+
+Add calls to `library(pkg)` for each package you want to 
 
 When you're ready, call
 ```r
