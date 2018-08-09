@@ -4,9 +4,7 @@ win7 {
 } 
 </style>
 
-# Developing your docker image
-
-If you're developing a docker image for a new vizzy or analysis project, copy this repo somewhere new. Repos will differ in which packages are installed in their packrat folder.
+# Using the docker image created here
 
 Open a bash shell. <win7>In Windows 7, run Docker Quickstart Terminal <em>as administrator, with VPN off.</em></win7>
 
@@ -26,12 +24,31 @@ docker image inspect my-vizzy-env
 
 Push your image to Docker Hub as soon as you're ready for others to access it.
 ```
-docker push USGS-VIZLAB/my-vizzy-env
+docker push USGS-VIZLAB/my-vizzy-env:0.1.0
 ```
-(Replace `USGS-VIZLAB/my-vizzy-env` with your actual image repository name.)
+(Replace `USGS-VIZLAB/my-vizzy-env` with your actual image repository name, and remember to update the tag number each time you build a changed version.)
 
 
-# Using your Docker image
+<win7>
+# Setting up VirtualBox for Docker image development and use (Windows 7)
+
+All of the following things need to happen running Oracle VirtualBox and/or the windows command prompt *as administrator*. Don't forget or it won't work.
+
+You'll need to configure the docker-machine VirtualBox image to share a directory or two with you. Because it's all happening on your local machine anyway, I think it's fine to share an entire drive via VirtualBox and then just map specific folders from within the docker-compose.yml file. I have `D_DRIVE` shared. To do the same: right click on VirtualBox, open as administrator. Right click on the `default` machine, select Settings, select Shared Folders, click the icon with the plus sign to add a folder. Name it `D_DRIVE` and map it to `D:\`, or use whatever comparable mapping is appropriate to your computer.
+
+Packrat needs to be able to create symlinks in your shared folders. To enable this, follow the instructions here: http://jessezhuang.github.io/article/virtualbox-tips/. For example, if you have the usual docker-machine VM named `default` and a shared drive named `D_DRIVE`, you should open a Windows command prompt, navigate to the folder containing `VBoxManage.exe` (probably Program Files/Oracle/VirtualBox or similar), and then run
+```
+VBoxManage setextradata default VBoxInternal2/SharedFoldersEnableSymlinksCreate/D_DRIVE 1
+```
+This symlink stuff may be mysterious but is super important - without it, packrat is unwilling to reuse the packages already installed on `rocker/geospatial`.
+
+You will probably want more memory and cores than the `default` machine comes with, especially once you get into running your project. From within VirtualBox Manager, right click on the `default` machine, select Settings, select System, and add more memory and more processors. I currently max out the green areas and might eventually even push into the red areas on days when I'm putting all my processing power into the Docker container.
+
+</win7>
+
+# Developing your Docker image
+
+If you're developing a docker image for a new vizzy or analysis project, copy this repo somewhere new. Repos will differ in which packages are installed in their packrat folder.
 
 ## Preparing your project repository to work with Docker
 
@@ -73,18 +90,39 @@ Strategy: Use packrat with Git LFS to sync a set of tar.gz package bundles in th
 In a fresh R session in this repository:
 ```r
 install.packages('packrat')
-packrat::init(options=list(ignored.packages='packrat', ignored.directories=c('example-repo','packrat')))
+packrat::init()
+```
+It's also a good idea to ignore all packages that are already installed on the Docker image we'll be using, at least until we discover that we need a different version of one of those packages. As of 8/7/2018, the R packages already available on the `rocker/geospatial` image are:
+```
+# I got this list for copy-pasting by launching a container from rocker/geospatial and then running
+# cat(paste0("'", rownames(installed.packages()), "'", collapse=', '))
+rocker_pkgs <- c('abind', 'assertive', 'assertive.base', 'assertive.code', 'assertive.data', 'assertive.data.uk', 'assertive.data.us', 'assertive.datetimes', 'assertive.files', 'assertive.matrices', 'assertive.models', 'assertive.numbers', 'assertive.properties', 'assertive.reflection', 'assertive.sets', 'assertive.strings', 'assertive.types', 'assertthat', 'backports', 'base64enc', 'BH', 'bindr', 'bindrcpp', 'BiocInstaller', 'bit', 'bit64', 'bitops', 'blob', 'bookdown', 'boot', 'brew', 'broom', 'callr', 'caTools', 'cellranger', 'class', 'classInt', 'cli', 'clipr', 'coda', 'codetools', 'colorspace', 'commonmark', 'concaveman', 'covr', 'crayon', 'crosstalk', 'curl', 'data.table', 'DBI', 'dbplyr', 'deldir', 'desc', 'devtools', 'dichromat', 'digest', 'docopt', 'dplyr', 'DT', 'dtplyr', 'e1071', 'evaluate', 'expm', 'fansi', 'feather', 'FNN', 'forcats', 'foreach', 'foreign', 'formatR', 'future', 'gdalUtils', 'gdata', 'gdtools', 'geometry', 'geoR', 'geosphere', 'ggplot2', 'git2r', 'globals', 'glue', 'gmailr', 'gmodels', 'goftest', 'gridExtra', 'gstat', 'gtable', 'gtools', 'haven', 'hdf5r', 'highr', 'hms', 'htmltools', 'htmlwidgets', 'httpuv', 'httr', 'hunspell', 'igraph', 'intervals', 'iterators', 'jsonlite', 'KernSmooth', 'knitr', 'labeling', 'Lahman', 'later', 'lattice', 'lazyeval', 'leaflet', 'leaflet.extras', 'LearnBayes', 'lidR', 'lintr', 'listenv', 'littler', 'lubridate', 'lwgeom', 'magic', 'magrittr', 'manipulateWidget', 'mapdata', 'mapedit', 'maps', 'maptools', 'mapview', 'markdown', 'MASS', 'Matrix', 'memoise', 'mgcv', 'microbenchmark', 'mime', 'miniUI', 'mockery', 'modelr', 'munsell', 'ncdf4', 'nlme', 'nycflights13', 'openssl', 'packrat', 'pillar', 'pingr', 'pkgbuild', 'pkgconfig', 'pkgload', 'PKI', 'plogr', 'plyr', 'png', 'polyclip', 'praise', 'prettyunits', 'processx', 'proj4', 'promises', 'purrr', 'R.methodsS3', 'R.oo', 'R.utils', 'R6', 'RandomFields', 'RandomFieldsUtils', 'RANN', 'raster', 'RColorBrewer', 'Rcpp', 'RCurl', 'readr', 'readxl', 'rematch', 'remotes', 'reprex', 'reshape2', 'rex', 'rgdal', 'rgeos', 'rgl', 'rhdf5', 'Rhdf5lib', 'RJSONIO', 'rlang', 'rlas', 'rmarkdown', 'rmdshower', 'RMySQL', 'RNetCDF', 'roxygen2', 'rpart', 'RPostgreSQL', 'rprojroot', 'rsconnect', 'RSQLite', 'rstudioapi', 'rticles', 'rversions', 'rvest', 'satellite', 'scales', 'selectr', 'servr', 'settings', 'sf', 'shiny', 'sourcetools', 'sp', 'spacetime', 'spatstat', 'spatstat.data', 'spatstat.utils', 'spData', 'spdep', 'splancs', 'stringdist', 'stringi', 'stringr', 'svglite', 'tensor', 'testit', 'testthat', 'tibble', 'tidyr', 'tidyselect', 'tidyverse', 'tinytex', 'tmap', 'tmaptools', 'tufte', 'units', 'utf8', 'uuid', 'V8', 'viridis', 'viridisLite', 'webshot', 'whisker', 'withr', 'xfun', 'XML', 'xml2', 'xtable', 'xts', 'yaml', 'zoo', 'base', 'compiler', 'datasets', 'graphics', 'grDevices', 'grid', 'methods', 'parallel', 'splines', 'stats', 'stats4', 'tcltk', 'tools', 'utils')
+```
+Now you can update the options as follows:
+```
+packrat::set_opts(
+  ignored.packages=rocker_pkgs,
+  external.packages=rocker_pkgs,
+  load.external.packages.on.startup=FALSE)
 ```
 
-Next install a starter set of packages (whatever you already know you need). Use any of the usual installation commands - `install.packages`, `install_github`, `install_version`, etc. Work at the command line rather than creating an R script, because packrat.lock will document everything we need to know about how the packages were installed.
+Next, build the bare-bones image.
+```
+docker-compose build
+```
 
-Add calls to `library(pkg)` for each package you want to 
+Run the image with this repository bind-mounted to the container.
+```
+docker-compose up
+```
 
-When you're ready, call
+From within the container, first open the packrat project by clicking on docker-practice/docker-practice.Rproj. Then run `install.packages()` or `devtools::install_github()` and add calls to `library(pkg)` to required-packages.R for each package you want to make available. Then call
 ```r
 packrat::snapshot()
 ```
 to update the `packrat` directory with information about the packages you've installed.
+
+Once you've run `packrat::snapshot()` from within the container, stop the container.
 
 ### Initializing Git LFS
 
